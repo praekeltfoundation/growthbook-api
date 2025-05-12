@@ -1,0 +1,7 @@
+[project]
+name = "growthbook_api"
+version = "0.1.0"
+description = "Exposes the growthbook client as an HTTP API, to allow us to interact with it where we cannot run a client"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
