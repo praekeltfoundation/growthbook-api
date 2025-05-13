@@ -27,6 +27,13 @@ FEATURES = {
 
 
 class FakeGrowthBookClient:
+    """
+    Fake GrowthBook async client that calculates results, but doesn't make a network
+    call to fetch feature configuration. Instead relies on hardcoded FEATURES.
+
+    Only implements a subset of the functionality that we require.
+    """
+
     def __init__(self):
         self.initialized = False
         self.closed = False
