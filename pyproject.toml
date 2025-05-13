@@ -4,4 +4,16 @@ version = "0.1.0"
 description = "Exposes the growthbook client as an HTTP API, to allow us to interact with it where we cannot run a client"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "fastapi[common]>=0.115.12",
+    "growthbook>=1.2.1",
+]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=8.3.5",
+]
+
+[tool.uv]
+package = true
