@@ -1,4 +1,4 @@
-from growthbook import GrowthBook
+from growthbook import FeatureResult, GrowthBook, UserContext
 
 FEATURES = {
     "prototype-feature": {
@@ -20,31 +20,32 @@ FEATURES = {
                 ],
                 "phase": "0",
                 "name": "Prototype experiment",
-            }
+            },
         ],
-    }
+    },
 }
 
 
 class FakeGrowthBookClient:
-    """
-    Fake GrowthBook async client that calculates results, but doesn't make a network
+    """Fake GrowthBook async client that calculates results, but doesn't make a network
     call to fetch feature configuration. Instead relies on hardcoded FEATURES.
 
     Only implements a subset of the functionality that we require.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.initialized = False
         self.closed = False
 
-    async def initialize(self):
+    async def initialize(self) -> None:
         self.initialized = True
 
-    async def close(self):
+    async def close(self) -> None:
         self.closed = True
 
-    async def eval_feature(self, feature_key, user_context):
+    async def eval_feature(
+        self, feature_key: str, user_context: UserContext,
+    ) -> FeatureResult:
         # The sync client supports supplying features and not requiring network
         # access, but the async client doesn't, so we use the sync client here
         # to do the calculations
