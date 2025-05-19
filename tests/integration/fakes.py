@@ -44,7 +44,7 @@ class FakeGrowthBookClient:
         self.closed = True
 
     async def eval_feature(
-        self, feature_key: str, user_context: UserContext,
+        self, feature_key: str, user_context: UserContext
     ) -> FeatureResult:
         # The sync client supports supplying features and not requiring network
         # access, but the async client doesn't, so we use the sync client here

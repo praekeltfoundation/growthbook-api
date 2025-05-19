@@ -33,7 +33,7 @@ app = FastAPI(lifespan=lifespan)
 
 @app.post("/evaluate_feature")
 async def evaluate_feature(
-    feature_request: FeatureRequest, gb_client: GBClientDep,
+    feature_request: FeatureRequest, gb_client: GBClientDep
 ) -> FeatureResult:
     context = UserContext(attributes=feature_request.user_attributes)
     result = await gb_client.eval_feature(feature_request.feature_key, context)
