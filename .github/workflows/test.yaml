@@ -28,6 +28,8 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           version: "0.7.5"
+          enable-cache: "true"
+          cache-dependancy-glob: "uv.lock"
       - uses: actions/setup-python@v5
         with:
           python-version-file: "pyproject.toml"
