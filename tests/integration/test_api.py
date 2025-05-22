@@ -39,7 +39,7 @@ def test_get_feature_value(api_client: TestClient) -> None:
             "user_attributes": {"whatsapp_id": "27820001001"},
         },
     )
-    assert response.status_code == status.OK
+    assert response.status_code == status.HTTP_200_OK
     assert response.json() == {
         "experiment": {
             "key": "test-experiment",
