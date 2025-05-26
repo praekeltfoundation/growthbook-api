@@ -5,7 +5,7 @@ description = "Exposes the growthbook client as an HTTP API, to allow us to inte
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "fastapi[common]>=0.115.12",
+    "fastapi[standard]>=0.115.12",
     "growthbook>=1.2.1",
 ]
 
