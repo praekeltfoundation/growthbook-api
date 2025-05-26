@@ -1,4 +1,4 @@
-from growthbook import FeatureResult, GrowthBook, UserContext
+from growthbook import FeatureResult, GrowthBook, Options, UserContext
 
 FEATURES = {
     "prototype-feature": {
@@ -33,7 +33,8 @@ class FakeGrowthBookClient:
     Only implements a subset of the functionality that we require.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, options: Options) -> None:
+        self.options = options
         self.initialized = False
         self.closed = False
 

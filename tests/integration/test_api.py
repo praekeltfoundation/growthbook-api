@@ -2,24 +2,24 @@ import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
 
-from growthbook_api.main import app, get_gb_client
+from growthbook_api.main import GrowthBookClientFactory, app, get_gb_client_factory
 
 from .fakes import FakeGrowthBookClient
 
 
 @pytest.fixture
-def gb_client() -> None:
+def gb_client_factory() -> None:
     """
     Fake GrowthBook client.
     """
-    fake_client = FakeGrowthBookClient()
-    app.dependency_overrides[get_gb_client] = lambda: fake_client
-    yield fake_client
-    del app.dependency_overrides[get_gb_client]
+    fake_factory = GrowthBookClientFactory(FakeGrowthBookClient)
+    app.dependency_overrides[get_gb_client_factory] = lambda: fake_factory
+    yield fake_factory
+    del app.dependency_overrides[get_gb_client_factory]
 
 
 @pytest.fixture
-def api_client(gb_client: FakeGrowthBookClient) -> TestClient:  # noqa: ARG001
+def api_client(gb_client_factory: GrowthBookClientFactory) -> TestClient:  # noqa: ARG001
     """
     Test client for application with fake GrowthBook client.
     """
@@ -34,6 +34,7 @@ def test_get_feature_value(api_client: TestClient) -> None:
     """
     response = api_client.post(
         "/evaluate_feature",
+        headers={"CLIENT-TOKEN": "faketoken"},
         json={
             "feature_key": "prototype-feature",
             "user_attributes": {"whatsapp_id": "27820001001"},
@@ -52,15 +53,27 @@ def test_get_feature_value(api_client: TestClient) -> None:
     }
 
 
-def test_client_initialized_and_closed(gb_client: FakeGrowthBookClient) -> None:
+def test_client_initialized_and_closed(
+    gb_client_factory: GrowthBookClientFactory,
+) -> None:
     """
-    The application should initialize the GrowthBook client on startup, and close it
-    on shutdown.
+    The application should create and initialize clients on request, and close it on
+    shutdown
     """
-    assert not gb_client.initialized
-    assert not gb_client.closed
-    with TestClient(app):
+    assert "faketoken" not in gb_client_factory.clients
+    with TestClient(app) as client:
+        client.post(
+            "/evaluate_feature",
+            headers={"CLIENT-TOKEN": "faketoken"},
+            json={
+                "feature_key": "prototype-feature",
+                "user_attributes": {"whatsapp_id": "27820001001"},
+            },
+        )
+        assert "faketoken" in gb_client_factory.clients
+        gb_client = gb_client_factory.clients["faketoken"]
         assert gb_client.initialized
         assert not gb_client.closed
     assert gb_client.initialized
     assert gb_client.closed
+    assert gb_client.options.client_key == "faketoken"
