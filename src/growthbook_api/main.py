@@ -6,7 +6,7 @@ from typing import Annotated, Any, Generic, Protocol, TypeVar
 from fastapi import Depends, FastAPI, Header
 from growthbook import FeatureResult as GBFeatureResult
 from growthbook import Options, UserContext
-from growthbook.growthbook_client import GrowthBookClient
+from growthbook.growthbook_client import FeatureRefreshStrategy, GrowthBookClient
 
 from .models import FeatureRequest, FeatureResult
 
@@ -32,7 +32,12 @@ class GrowthBookClientFactory(Generic[T]):
 
     async def get_client(self, token: str) -> T:
         if token not in self.clients:
-            client = self.client_class(Options(client_key=token))
+            client = self.client_class(
+                Options(
+                    client_key=token,
+                    refresh_strategy=FeatureRefreshStrategy.SERVER_SENT_EVENTS,
+                )
+            )
             await client.initialize()
             self.clients[token] = client
         return self.clients[token]
