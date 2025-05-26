@@ -5,8 +5,7 @@ from fastapi import status
 from fastapi.testclient import TestClient
 
 from growthbook_api.main import GrowthBookClientFactory, app, get_gb_client_factory
-
-from .fakes import FakeGrowthBookClient
+from tests.fakes import FakeGrowthBookClient
 
 
 @pytest.fixture
