@@ -1,23 +1,36 @@
 from asyncio import gather
-from collections.abc import Generator
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import Annotated, TypeVar
+from typing import Annotated, Any, Generic, Protocol, TypeVar
 
 from fastapi import Depends, FastAPI, Header
+from growthbook import FeatureResult as GBFeatureResult
 from growthbook import Options, UserContext
 from growthbook.growthbook_client import GrowthBookClient
 
 from .models import FeatureRequest, FeatureResult
 
-ClientCls = TypeVar("ClientCls")
+
+class GrowthBookClientProtocol(Protocol):
+    def __init__(self, options: dict[str, Any] | Options | None) -> None: ...
+    @property
+    def options(self) -> Options: ...
+    async def initialize(self) -> bool: ...
+    async def close(self) -> None: ...
+    async def eval_feature(
+        self, feature_key: str, user_context: UserContext
+    ) -> GBFeatureResult: ...
 
 
-class GrowthBookClientFactory:
-    def __init__(self, client_class: ClientCls = GrowthBookClient) -> None:
+T = TypeVar("T", bound=GrowthBookClientProtocol)
+
+
+class GrowthBookClientFactory(Generic[T]):
+    def __init__(self, client_class: type[T]) -> None:
         self.client_class = client_class
-        self.clients: dict[str, GrowthBookClient] = {}
+        self.clients: dict[str, T] = {}
 
-    async def get_client(self, token: str) -> ClientCls:
+    async def get_client(self, token: str) -> T:
         if token not in self.clients:
             client = self.client_class(Options(client_key=token))
             await client.initialize()
@@ -29,7 +42,7 @@ class GrowthBookClientFactory:
         self.clients.clear()
 
 
-gb_client_factory = GrowthBookClientFactory()
+gb_client_factory = GrowthBookClientFactory(GrowthBookClient)
 
 
 def get_gb_client_factory() -> GrowthBookClientFactory:
@@ -40,7 +53,7 @@ GBClientFactoryDep = Annotated[GrowthBookClientFactory, Depends(get_gb_client_fa
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> Generator:
+async def lifespan(app: FastAPI) -> AsyncIterator:
     # FastAPI doesn't support dependancies in lifespans, so we fetch it manually
     factory = app.dependency_overrides.get(
         get_gb_client_factory, get_gb_client_factory

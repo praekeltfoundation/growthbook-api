@@ -38,8 +38,9 @@ class FakeGrowthBookClient:
         self.initialized = False
         self.closed = False
 
-    async def initialize(self) -> None:
+    async def initialize(self) -> bool:
         self.initialized = True
+        return True
 
     async def close(self) -> None:
         self.closed = True

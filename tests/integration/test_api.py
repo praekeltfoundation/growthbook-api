@@ -1,3 +1,5 @@
+from collections.abc import Generator
+
 import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
@@ -8,7 +10,7 @@ from .fakes import FakeGrowthBookClient
 
 
 @pytest.fixture
-def gb_client_factory() -> None:
+def gb_client_factory() -> Generator[GrowthBookClientFactory]:
     """
     Fake GrowthBook client.
     """
@@ -19,7 +21,7 @@ def gb_client_factory() -> None:
 
 
 @pytest.fixture
-def api_client(gb_client_factory: GrowthBookClientFactory) -> TestClient:  # noqa: ARG001
+def api_client(gb_client_factory: GrowthBookClientFactory) -> Generator[TestClient]:  # noqa: ARG001
     """
     Test client for application with fake GrowthBook client.
     """
