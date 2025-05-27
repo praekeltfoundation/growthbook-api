@@ -17,5 +17,5 @@ class FeatureResult(BaseModel):
     source: str
     on: bool
     off: bool
-    ruleId: str | None  # noqa: N815 - provided by parent API
-    experiment: Experiment | None
+    ruleId: str | None = None  # noqa: N815 - provided by parent API
+    experiment: Experiment | None = None

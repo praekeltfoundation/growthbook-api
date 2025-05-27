@@ -78,3 +78,27 @@ def test_client_initialized_and_closed(
     assert gb_client.initialized
     assert gb_client.closed
     assert gb_client.options.client_key == "faketoken"
+
+
+def test_get_invalid_feature_value(api_client: TestClient) -> None:
+    """
+    The evaluate_feature endpoint should handle empty values caused by invalid feature
+    keys.
+    """
+    response = api_client.post(
+        "/evaluate_feature",
+        headers={"CLIENT-TOKEN": "faketoken"},
+        json={
+            "feature_key": "invalid-feature-key",
+            "user_attributes": {"whatsapp_id": "27820001001"},
+        },
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        "experiment": None,
+        "off": True,
+        "on": False,
+        "ruleId": None,
+        "source": "unknownFeature",
+        "value": None,
+    }
